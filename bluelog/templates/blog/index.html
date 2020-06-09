@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% from 'bootstrap/pagination.html' import render_pager %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <div class="page-header mt-5">
+        <h1 class="display-3">{{ admin.bluelog_title|default('Blog title') }}</h1>
+        <h4 class="text-muted">&nbsp;{{ admin.bluelog_sub_title|default('Blog Subtitle') }}</h4>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-sm-8">
+            {% include 'blog/_posts.html' %}
+            {% if posts %}
+                {{ render_pager(pagination) }}
+
+            {% endif %}
+        </div>
+        <div class="col-sm-4 pl-4">
+            {% include 'blog/_sidebar.html' %}
+        </div>
+    </div>
+
+{% endblock %}

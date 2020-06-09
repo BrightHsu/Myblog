@@ -1,0 +1,24 @@
+
+{% if posts %}
+    {% for post in posts %}
+        <h5 class="mt-3 py-2"><a href="{{ url_for('.show_post', post_id=post.id) }}">{{ post.title }}</a></h5>
+        <p class="text-justify">{{ post.body|safe|truncate }}
+            <small><a href="{{ url_for('.show_post', post_id=post.id) }}">Read More</a></small>
+        </p>
+        <p class="d-flex justify-content-between">
+            <small>
+                 Comments: <a href="{{ url_for('.show_post', post_id=post.id) }}#comment">{{ post.comments|reviewed }}</a>
+                 Category: <a href="{{ url_for('.show_category', category_id=post.category_id) }}">{{ post.category.name }}</a>
+            </small>
+            <small>{{ moment(post.timestamp).format('LL') }}</small>
+        </p>
+        {% if not loop.last %}
+            <hr>
+        {% endif %}
+    {% endfor %}
+    <br>
+{% else %}
+    <div class="tip">
+        <h5>No Post</h5>
+    </div>
+{% endif %}

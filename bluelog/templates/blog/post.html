@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+{% from 'bootstrap/form.html' import render_form %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+    {% if post %}
+    <div class="page-header mt-5">
+        <h2>{{ post.title }}</h2>
+        <small>Category: <a href="{{ url_for('.show_category', category_id=post.category_id) }}">{{ post.category.name }}</a>
+        <br>
+        Date: {{ moment(post.timestamp).format('LL') }}</small>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-sm-8">
+            <div class="text-justify">{{ post.body|safe }}</div>
+
+            <br>
+
+            <!-- Share -->
+            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal">
+              Share
+            </button>
+            <div class="modal fade" id="myModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Permalink</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <input type="text" class="form-control" value="{{ url_for('.show_post', post_id=post.id,
+                                 _external=True) }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- comment -->
+            <h4 class="mt-5">{{ pagination.total }} Comments <a href="{{ url_for('.show_post', post_id=post.id, page=pagination.pages or 1) }}#comment-{{ pagination.total }}">latest</a></h4>
+            {% if comments %}
+            <div id="comment" class="mb-5">
+                    <ul class="list-group">
+                    {% for comment in comments %}
+                        <li class="list-group-item list-group-item-action flex-column " id="comment-{{ loop.index+(pagination.page-1)*config.BLUELOG_COMMENT_PRE_PAGE }}">
+                            <div class="d-flex justify-content-between ">
+                                <h5>
+                                    <a href="{% if comment.site %}{{ comment.site }}{% else %}#{% endif %}" target="_blank">
+                                        {{ comment.author }}
+                                    </a>
+                                    {% if comment.from_admin %}
+                                    <span class="badge badge-primary badge-sm">Author</span>
+                                    {% endif %}
+
+                                </h5>
+                                <small data-toggle="tooltip" data-placement="top" data-delay="500"
+                                       data-timestamp="{{ comment.timestamp.strftime('%Y-%m-%dT%H:%M:%SZ') }}">
+                                    {{ moment(comment.timestamp).fromNow(refresh=True) }}
+                                </small>
+                            </div>
+                            <p class="mb-1">
+                                {{ comment.body }}
+                            </p>
+                            {% if comment.replys %}
+
+                                {% for reply in comment.replys|reply_sort %}
+                                <div class="m-3 p-3 alert-dark text-muted">
+                                    <small class="text-muted">#{{ loop.index }}</small>
+                                <a href="{{ reply.site }}" target="_blank">{{ reply.author }}
+                                </a>
+                                    {% if reply.from_admin %}
+                                        <span class="badge badge-primary badge-sm">Author</span>
+                                    {% endif %}:
+                                    <br>
+                                    <div class="d-flex justify-content-between">
+                                        <p>{{ reply.body }}</p>
+                                        <small>{{ moment(reply.timestamp).format('lll') }}</small>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <p class="float-right">
+                                <a class="btn btn-sm btn-light" href="{{ url_for('.reply_comment', comment_id=comment.id,
+                                next=loop.index+(pagination.page-1)*config.BLUELOG_COMMENT_PRE_PAGE) }}">Reply</a>
+                            </p>
+
+                        </li>
+
+                {% endfor %}
+              </ul>
+            </div>
+
+            <!-- 页脚 -->
+            {{ render_pagination(pagination, fragment='#comment') }}
+            {% else %}
+            <div class="tip">
+                <h5>No Comment</h5>
+            </div>
+            {% endif %}
+
+
+            <!-- 表单 -->
+            {% if request.args.get('reply') %}
+                <div class="alert alert-dark">
+                    Reply to <strong>
+                                    {% if request.args.get('admin')=='True' %}
+                                        {{ admin.name }}
+                                    {% else %}
+                                        {{ request.args.get('author') }}
+                                    {% endif %}
+                            </strong>:
+                    <a class="float-right" href="{{ url_for('.show_post', post_id=post.id) }}#comment-{{ request.args.get('r_id') }}">Cancel</a>
+                </div>
+            {% endif %}
+            {{ render_form(form, id='comment-form', extra_classes='mt-3') }}
+        </div>
+
+        <div class="col-sm-4 pl-4">
+            {% include('blog/_sidebar.html') %}
+        </div>
+    </div>
+    {% else %}
+    <div class="tip">
+        <h5>No Post</h5>
+    </div>
+    {% endif %}
+{% endblock %}
+
