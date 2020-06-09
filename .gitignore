@@ -1,0 +1,8 @@
+.idea/
+__pycache__/
+PIPENV_VENV_IN_PROJECT/
+/uploads/*
+!.gitkeep
+.env
+*.db
+/*.py
