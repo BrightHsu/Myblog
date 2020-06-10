@@ -69,8 +69,7 @@ def register_template_context(app):
         links = Link.query.order_by(Link.name).all()
 
         if current_user.is_authenticated:
-            unread_comments = Comment.query.filter_by(reviewed=False).count() + \
-                              Reply.query.filter_by(reviewed=False).count()
+            unread_comments = Comment.query.filter_by(reviewed=False).count()
         else:
             unread_comments = None
         return dict(

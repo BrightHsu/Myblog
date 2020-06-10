@@ -50,11 +50,11 @@
                         </a>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="{{ url_for('admin.manage_post') }}">Post</a>
-                            <a class="dropdown-item" href="#">Category</a>
-                            <a class="dropdown-item" href="#">Comment
+                            <a class="dropdown-item" href="{{ url_for('admin.manage_category') }}">Category</a>
+                            <a class="dropdown-item" href="{{ url_for('admin.manage_comment') }}">Comment
                                 <span class="badge badge-success badge-sm">{{ unread_comments }}</span>
                             </a>
-                            <a class="dropdown-item" href="#">Link</a>
+                            <a class="dropdown-item" href="{{ url_for('admin.manage_link') }}">Link</a>
                         </div>
                     </li>
                     <li class="nav-item">

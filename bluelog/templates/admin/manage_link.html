@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Manage Link{% endblock %}
+
+{% block content %}
+    <div class="page-header mt-5 d-flex justify-content-between align-items-center">
+        <h1>Links {{ links|length }}</h1>
+        <span><a class="btn btn-primary btn-sm" href="{{ url_for('.new_link') }}">New link</a></span>
+    </div>
+    {% if links %}
+    <table class="table table-striped my-5">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Name</th>
+                <th>Url</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for link in links %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ link.name }}</td>
+                    <td><a href="{{ link.url }}" target="_blank">{{ link.url }}</a></td>
+                    <td>
+                        <a href="" class="btn btn-info btn-sm">Edit</a>
+                        <form method="post" class="inline" action="">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除吗?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="tip"><h5>No link</h5></div>
+    {% endif %}
+{% endblock %}

@@ -41,9 +41,24 @@
             </div>
 
             <!-- comment -->
-            <h4 class="mt-5">{{ pagination.total }} Comments <a href="{{ url_for('.show_post', post_id=post.id, page=pagination.pages or 1) }}#comment-{{ pagination.total }}">latest</a></h4>
+            <div id="comment" class="py-5">
+            <h4 class="mb-3">{{ pagination.total }} Comments
+                <a href="{{ url_for('.show_post', post_id=post.id, page=pagination.pages or 1) }}#comment-{{ pagination.total }}">latest</a>
+                {% if current_user.is_authenticated %}
+                    <form class="inline float-right" method="post" action="{{ url_for('admin.change_comment', post_id=post.id, next=request.full_path) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-{% if post.can_comment %}warning{% else %}success{% endif %} btn-sm">
+                            {% if post.can_comment %}
+                                Disable Comment
+                            {% else %}
+                                Enable Comment
+                            {% endif %}
+                        </button>
+                    </form>
+                {% endif %}
+            </h4>
             {% if comments %}
-            <div id="comment" class="mb-5">
+            <div>
                     <ul class="list-group">
                     {% for comment in comments %}
                         <li class="list-group-item list-group-item-action flex-column " id="comment-{{ loop.index+(pagination.page-1)*config.BLUELOG_COMMENT_PRE_PAGE }}">
@@ -70,7 +85,7 @@
                                 {% for reply in comment.replys|reply_sort %}
                                 <div class="m-3 p-3 alert-dark text-muted">
                                     <small class="text-muted">#{{ loop.index }}</small>
-                                <a href="{{ reply.site }}" target="_blank">{{ reply.author }}
+                                <a href="{{ reply.site }}" >{{ reply.author }}
                                 </a>
                                     {% if reply.from_admin %}
                                         <span class="badge badge-primary badge-sm">Author</span>
@@ -84,17 +99,27 @@
                                 {% endfor %}
                             {% endif %}
 
-                            <p class="float-right">
+                            <div class="float-right">
                                 <a class="btn btn-sm btn-light" href="{{ url_for('.reply_comment', comment_id=comment.id,
                                 next=loop.index+(pagination.page-1)*config.BLUELOG_COMMENT_PRE_PAGE) }}">Reply</a>
-                            </p>
+
+                                {% if current_user.is_authenticated %}
+                                <a class="btn btn-light btn-sm" href="mailto:{{ comment.email }}">Email</a>
+                                <form method="post" class="inline" action="{{ url_for('admin.delete_comment', comment_id=comment.id, next=request.full_path) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这条评论吗?')">
+                                        Delete
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
 
                         </li>
 
                 {% endfor %}
-              </ul>
+                    </ul>
             </div>
-
+            </div>
             <!-- 页脚 -->
             {{ render_pagination(pagination, fragment='#comment') }}
             {% else %}
@@ -104,7 +129,7 @@
             {% endif %}
 
 
-            <!-- 表单 -->
+            <!-- 回复提示 -->
             {% if request.args.get('reply') %}
                 <div class="alert alert-dark">
                     Reply to <strong>
@@ -117,7 +142,13 @@
                     <a class="float-right" href="{{ url_for('.show_post', post_id=post.id) }}#comment-{{ request.args.get('r_id') }}">Cancel</a>
                 </div>
             {% endif %}
-            {{ render_form(form, id='comment-form', extra_classes='mt-3') }}
+
+            <!-- 表单 -->
+            {% if post.can_comment %}
+                {{ render_form(form, id='comment-form', extra_classes='mt-3') }}
+            {% else %}
+                <div class="tip"><h5>Disable Comment</h5></div>
+            {% endif %}
         </div>
 
         <div class="col-sm-4 pl-4">
