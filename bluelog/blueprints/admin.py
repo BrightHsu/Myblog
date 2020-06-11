@@ -10,9 +10,9 @@
 
 from flask import Blueprint, url_for, flash, request, redirect, current_app, render_template, send_from_directory
 from bluelog.utils import redirect_back, allowed_file
-from flask_login import current_user, login_required
-from bluelog.forms import PostForm, CategoryFrom, LinkFrom
-from bluelog.models import Category, Post, Link, Comment, Reply
+from flask_login import login_required
+from bluelog.forms import PostForm, CategoryFrom, LinkFrom, AdminForm
+from bluelog.models import Category, Post, Link, Comment, Admin, Reply
 from flask_ckeditor import upload_success, upload_fail
 import os
 from bluelog.extensions import db
@@ -56,7 +56,7 @@ def upload_image():
     return upload_success(url, f.filename)
 
 
-@admin_bp.route('/new/category')
+@admin_bp.route('/new/category', methods=['GET', 'POST'])
 @login_required
 def new_category():
     form = CategoryFrom()
@@ -66,20 +66,22 @@ def new_category():
         db.session.add(category)
         db.session.commit()
         flash('您成功新建一个分类!', 'success')
+        return redirect(url_for('.manage_category'))
     return render_template('admin/new_category.html', form=form)
 
 
-@admin_bp.route('/new/link')
+@admin_bp.route('/new/link', methods=['GET', 'POST'])
 @login_required
 def new_link():
     form = LinkFrom()
     if form.validate_on_submit():
         name = form.name.data
         url = form.url.data
-        category = Category(name=name, url=url)
-        db.session.add(category)
+        link = Link(name=name, url=url)
+        db.session.add(link)
         db.session.commit()
         flash('您成功新建一条链接!', 'success')
+        return redirect(url_for('.manage_link'))
 
     return render_template('admin/new_link.html', form=form)
 
@@ -155,8 +157,7 @@ def delete_comment(comment_id):
 @admin_bp.route('/manage/category')
 @login_required
 def manage_category():
-    categories = Category.query.order_by(
-        Category.name).filter(
+    categories = Category.query.filter(
         Category.id != 1).all()
     default = Category.query.get(1)
     return render_template(
@@ -226,5 +227,61 @@ def approve(comment_id):
 @admin_bp.route('/manage/link')
 @login_required
 def manage_link():
-    links = Link.query.order_by(Link.name).all()
+    links = Link.query.all()
     return render_template('admin/manage_link.html', links=links)
+
+
+@admin_bp.route('/manage/link/edit/<int:link_id>', methods=['POST', 'GET'])
+@login_required
+def edit_link(link_id):
+    link = Link.query.get_or_404(link_id)
+    form = LinkFrom()
+    if form.validate_on_submit():
+        link.name = form.name.data
+        link.url = form.url.data
+        db.session.commit()
+        flash('已成功修改一条link', 'success')
+        return redirect_back()
+    form.name.data = link.name
+    form.url.data = link.url
+    return render_template('admin/new_link.html', form=form)
+
+
+@admin_bp.route('/manage/link/delete/<int:link_id>', methods=['POST'])
+@login_required
+def delete_link(link_id):
+    link = Link.query.get_or_404(link_id)
+    db.session.delete(link)
+    db.session.commit()
+    flash('已成功删除一条link', 'success')
+    return redirect_back()
+
+
+@admin_bp.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    admin = Admin.query.first()
+    form = AdminForm()
+    if form.validate_on_submit():
+        admin.name = form.name.data
+        admin.bluelog_title = form.blog_title.data
+        admin.bluelog_sub_title = form.blog_sub_title.data
+        admin.about = form.about.data
+        db.session.commit()
+        flash('已成功修改个人资料', 'success')
+        return redirect(url_for('blog.index'))
+    form.name.data = admin.name
+    form.blog_title.data = admin.bluelog_title
+    form.blog_sub_title.data = admin.bluelog_sub_title
+    form.about.data = admin.about
+    return render_template('admin/settings.html', form=form)
+
+
+@admin_bp.route('/reply/delete/<int:reply_id>', methods=['POST'])
+@login_required
+def delete_reply(reply_id):
+    reply = Reply.query.get_or_404(reply_id)
+    db.session.delete(reply)
+    db.session.commit()
+    flash('已成功删除该回复', 'success')
+    return redirect_back()

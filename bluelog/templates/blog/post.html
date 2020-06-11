@@ -65,7 +65,11 @@
                             <div class="d-flex justify-content-between ">
                                 <h5>
                                     <a href="{% if comment.site %}{{ comment.site }}{% else %}#{% endif %}" target="_blank">
-                                        {{ comment.author }}
+                                        {% if comment.from_admin %}
+                                            {{ admin.name }}
+                                        {% else %}
+                                            {{ comment.author }}
+                                        {% endif %}
                                     </a>
                                     {% if comment.from_admin %}
                                     <span class="badge badge-primary badge-sm">Author</span>
@@ -80,17 +84,26 @@
                             <p class="mb-1">
                                 {{ comment.body }}
                             </p>
-                            {% if comment.replys %}
+                            {% if comment.replies %}
 
-                                {% for reply in comment.replys|reply_sort %}
+                                {% for reply in comment.replies|reply_sort %}
                                 <div class="m-3 p-3 alert-dark text-muted">
-                                    <small class="text-muted">#{{ loop.index }}</small>
-                                <a href="{{ reply.site }}" >{{ reply.author }}
-                                </a>
-                                    {% if reply.from_admin %}
-                                        <span class="badge badge-primary badge-sm">Author</span>
-                                    {% endif %}:
-                                    <br>
+                                    <div class="mb-2 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-muted">#{{ loop.index }}</small>
+                                            <a href="{{ reply.site}}" >{{ reply.author }}</a>
+                                                {% if reply.from_admin %}
+                                                    <span class="badge badge-primary badge-sm">Author</span>
+                                                {% endif %}:
+                                        </div>
+                                        {% if current_user.is_authenticated %}
+                                        <form class="inline float-right" method="post" action="{{ url_for('admin.delete_reply',reply_id=reply.id, next=request.full_path) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除该回复吗?')">Delete</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+
                                     <div class="d-flex justify-content-between">
                                         <p>{{ reply.body }}</p>
                                         <small>{{ moment(reply.timestamp).format('lll') }}</small>
@@ -100,7 +113,7 @@
                             {% endif %}
 
                             <div class="float-right">
-                                <a class="btn btn-sm btn-light" href="{{ url_for('.reply_comment', comment_id=comment.id,
+                                <a class="btn btn-sm btn-light" href="{{ url_for('.reply_comment', comment_id=comment.id, page=pagination.page,
                                 next=loop.index+(pagination.page-1)*config.BLUELOG_COMMENT_PRE_PAGE) }}">Reply</a>
 
                                 {% if current_user.is_authenticated %}
@@ -139,14 +152,19 @@
                                         {{ request.args.get('author') }}
                                     {% endif %}
                             </strong>:
-                    <a class="float-right" href="{{ url_for('.show_post', post_id=post.id) }}#comment-{{ request.args.get('r_id') }}">Cancel</a>
+                    <a class="float-right" href="{{ url_for('.show_post', post_id=post.id, page=pagination.page) }}#comment-{{ request.args.get('r_id') }}">Cancel</a>
                 </div>
             {% endif %}
 
             <!-- 表单 -->
             {% if post.can_comment %}
-                {{ render_form(form, id='comment-form', extra_classes='mt-3') }}
+                {% if request.args.get('reply') %}
+                    {{ render_form(form, id='comment-form', extra_classes='m-3', action=url_for('.reply_form', comment_id=request.args.get('reply'), next=request.full_path)) }}
+                {% else %}
+                    {{ render_form(form, id='comment-form', extra_classes='m-3', action=url_for('.show_post', post_id=post.id)) }}
+                {% endif %}
             {% else %}
+
                 <div class="tip"><h5>Disable Comment</h5></div>
             {% endif %}
         </div>

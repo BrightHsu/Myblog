@@ -19,6 +19,7 @@ from bluelog.blueprints.blog import blog_bp
 from bluelog.extensions import bootstrap, ckeditor, mail, moment, db, login_manager, csrf
 from bluelog.models import Admin, Category, Link, Post, Comment, Reply
 from flask_login import current_user
+from flask_wtf.csrf import CSRFError
 
 
 def create_app(config_name=None):
@@ -95,8 +96,8 @@ def register_template_filter(app):
         return num
 
     @app.template_filter()
-    def reply_sort(replys):
-        return sorted(replys, key=lambda x: x.timestamp, reverse=False)
+    def reply_sort(replies):
+        return sorted(replies, key=lambda x: x.timestamp, reverse=False)
 
 
 def register_errors(app):
@@ -111,6 +112,10 @@ def register_errors(app):
     @app.errorhandler(500)
     def internal_server_error(e):
         return render_template('errors/500.html'), 500
+
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        return render_template('errors/400.html', description=e.description), 400
 
 
 def register_commands(app):

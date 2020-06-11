@@ -113,17 +113,17 @@ def fake_reply(count=200):
 
     salt = int(count * 0.5)
     for i in range(salt):
-        # 未审核评论
-        reply = Reply(
-            author=fake.name(),
-            email=fake.email(),
-            site=fake.url(),
-            body=fake.sentence(),
-            timestamp=fake.date_time_this_year(),
-            reviewed=False,
-            comment=Comment.query.get(random.randint(1, Comment.query.count()))
-        )
-        db.session.add(reply)
+        # # 未审核评论
+        # reply = Reply(
+        #     author=fake.name(),
+        #     email=fake.email(),
+        #     site=fake.url(),
+        #     body=fake.sentence(),
+        #     timestamp=fake.date_time_this_year(),
+        #     reviewed=False,
+        #     comment=Comment.query.get(random.randint(1, Comment.query.count()))
+        # )
+        # db.session.add(reply)
 
         # 管理员发表的评论
         reply = Reply(

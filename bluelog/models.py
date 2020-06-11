@@ -72,7 +72,7 @@ class Comment(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
     post = db.relationship('Post', back_populates='comments')
 
-    replys = db.relationship('Reply', back_populates='comment', cascade='all, delete-orphan')
+    replies = db.relationship('Reply', back_populates='comment', cascade='all, delete-orphan')
 
 
 class Reply(db.Model):
@@ -84,10 +84,10 @@ class Reply(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
     from_admin = db.Column(db.Boolean, default=False)
-    reviewed = db.Column(db.Boolean, default=False)
+    reviewed = db.Column(db.Boolean, default=True)
 
     comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'))
-    comment = db.relationship('Comment', back_populates='replys')
+    comment = db.relationship('Comment', back_populates='replies')
 
 
 class Link(db.Model):
