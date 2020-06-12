@@ -42,7 +42,7 @@ class BaseConfig():
     BLUELOG_MANAGE_POST_PAGE = 15
     BLUELOG_COMMENT_PRE_PAGE = 15
 
-    THEME = {'Perfect Pink': 'journal', 'Black Swan': 'black_swan', 'Darkly': 'darkly', 'Perfect Blue': 'perfect_blue'}
+    THEME = {'Perfect Pink': 'journal', 'Black Swan': 'black_swan', 'Perfect Blue': 'perfect_blue'}
 
     BLUELOG_UPLOAD_PATH = os.path.join(basedir, 'uploads')
     BLUELOG_ALLOWED_IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']

@@ -3,9 +3,15 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-    <div class="page-header mt-5">
-        <h1 class="display-3">{{ admin.bluelog_title|default('Blog title') }}</h1>
-        <h4 class="text-muted">&nbsp;{{ admin.bluelog_sub_title|default('Blog Subtitle') }}</h4>
+    <div class="page-header mt-3">
+        <h1 class="display-3 animate__animated animate__bounce">{{ admin.bluelog_title|default('Blog title') }}</h1>
+        <h4 class="text-muted mt-3" >
+            <div id="typed-strings" >
+               <small> {{ admin.blog_sub_title|default('Blog Subtitle') }}</small>
+               <small> 你确定你是认真的吗？</small>
+            </div>
+            <span id="typed"></span>
+        </h4>
     </div>
 
     <div class="row mt-4">

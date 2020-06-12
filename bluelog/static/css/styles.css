@@ -16,3 +16,7 @@ footer {
 .inline {
     display: inline !important;
 }
+
+.hvr-bounce-to-right:before{
+    background: success !important
+    }

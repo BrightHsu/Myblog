@@ -7,8 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{% endblock %} - Bluelog</title>
     <link rel="icon" href="{{ url_for('static', filename='logo.jpg') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/%s.min.css' % request.cookies.get('theme','Journal')) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/%s.min.css' % request.cookies.get('theme','perfect_blue')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animate.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/hover-min.css') }}">
     {% endblock head %}
 </head>
 <body>
@@ -17,7 +19,6 @@
     <nav class="navbar navbar-expand-md bg-primary navbar-dark">
         <div class="container">
            <a class="navbar-brand" href="{{ url_for('blog.index') }}">{{ admin.bluelog_title }}</a>
-
            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
                 <span class="navbar-toggler-icon"></span>
            </button>
@@ -102,6 +103,7 @@
     <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/typed.js@2.0.11') }}"></script>
     {{ moment.include_moment(local_js=url_for('static', filename='js/moment-with-locales.js')) }}
     {{ moment.locale(auto_detect=True) }}
 {% endblock %}
